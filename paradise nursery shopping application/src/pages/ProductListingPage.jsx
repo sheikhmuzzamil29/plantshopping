@@ -1,44 +1,44 @@
 import React from 'react';
-import { useCart } from '../context/CartContext';
-import PlantCard from '../components/PlantCard';
+import Header from '../components/Header';
+import ProductCard from '../components/ProductCard';
+import { products } from '../data/products';
 import './ProductListingPage.css';
 
-import snakePlantImg from '../assets/snake-plant.jpg';
-import spiderPlantImg from '../assets/spider-plant.jpg';
-import lavenderImg from '../assets/lavender.jpg';
-import rosemaryImg from '../assets/rosemary.jpg';
-import fiddleLeafFigImg from '../assets/fiddle-leaf-fig.jpg';
-import aloeVeraImg from '../assets/aloe-vera.jpg';
-import Header from '../components/Header';
+const ProductListingPage = ({ cart, addToCart, getTotalItems }) => {
+  const categories = ['Air Purifying Plants', 'Aromatic Plants', 'Medicinal Plants', 'Low Maintenance Plants'];
 
-const plants = [
-  { id: 1, category: 'Air Purifying', name: 'Snake Plant', price: 15, thumbnail: snakePlantImg },
-  { id: 2, category: 'Air Purifying', name: 'Spider Plant', price: 12, thumbnail: spiderPlantImg },
-  { id: 3, category: 'Aromatic', name: 'Lavender', price: 10, thumbnail: lavenderImg },
-  { id: 4, category: 'Aromatic', name: 'Rosemary', price: 8, thumbnail: rosemaryImg },
-  { id: 5, category: 'Ornamental', name: 'Fiddle Leaf Fig', price: 20, thumbnail: fiddleLeafFigImg },
-  { id: 6, category: 'Ornamental', name: 'Aloe Vera', price: 18, thumbnail: aloeVeraImg },
-];
-
-const categories = ['Air Purifying', 'Aromatic', 'Ornamental'];
-
-const ProductListingPage = () => {
-  const { addToCart } = useCart();
+  const getProductsByCategory = (category) => {
+    return products.filter(product => product.category === category);
+  };
 
   return (
     <div className="product-listing-page">
-      <Header />
-      <div className="products">
-        {categories.map(category => (
-          <div key={category}>
-            <h2>{category}</h2>
-            <div className="plant-cards">
-              {plants.filter(plant => plant.category === category).map(plant => (
-                <PlantCard key={plant.id} plant={plant} />
-              ))}
+      <Header totalItems={getTotalItems()} currentPage="products" />
+      <div className="products-container">
+        <h1 className="page-title">Our Plant Collection</h1>
+        {categories.map(category => {
+          const categoryProducts = getProductsByCategory(category);
+          if (categoryProducts.length === 0) return null;
+          
+          return (
+            <div key={category} className="category-section">
+              <h2 className="category-title">{category}</h2>
+              <div className="products-grid">
+                {categoryProducts.map(product => {
+  const isInCart = cart.some(item => item.id === product.id);
+  return (
+    <ProductCard 
+      key={product.id}
+      product={product}
+      onAddToCart={addToCart}
+      isInCart={isInCart}
+    />
+  );
+})}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

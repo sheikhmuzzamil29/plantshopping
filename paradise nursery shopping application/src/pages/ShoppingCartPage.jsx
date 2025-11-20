@@ -1,42 +1,57 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
-import './ShoppingCartPage.css';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import CartItem from '../components/CartItem';
+import './ShoppingCartPage.css';
 
-const ShoppingCartPage = () => {
-  const { cart, removeFromCart, incrementQuantity, decrementQuantity } = useCart();
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalCost = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+const ShoppingCartPage = ({ cart, updateQuantity, removeFromCart, getTotalItems, getTotalCost }) => {
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    alert('Coming Soon! Checkout functionality will be implemented.');
+  };
 
   return (
     <div className="shopping-cart-page">
-      <Header />
-      <div className="cart-content">
-        <h2>Shopping Cart</h2>
-        <div className="cart-summary">
-          <p>Total Items: {totalItems}</p>
-          <p>Total Cost: ${totalCost.toFixed(2)}</p>
-          <button onClick={() => alert('Coming Soon!')}>Checkout</button>
-          <Link to="/products" className="continue-shopping-btn">Continue Shopping</Link>
-        </div>
-        <div className="cart-items">
-          {cart.map(item => (
-            <div key={item.id} className="cart-item">
-              <img src={item.thumbnail} alt={item.name} />
-              <div className="item-details">
-                <h3>{item.name}</h3>
-                <p>Unit Price: ${item.price}</p>
-                <div className="quantity-controls">
-                  <button onClick={() => decrementQuantity(item.id)}>-</button>
-                  <span>{item.quantity}</span>
-                  <button onClick={() => incrementQuantity(item.id)}>+</button>
-                </div>
-                <button onClick={() => removeFromCart(item.id)}>Delete</button>
-              </div>
+      <Header totalItems={getTotalItems()} currentPage="cart" />
+      <div className="cart-container">
+        <h1 className="page-title">Shopping Cart</h1>
+        
+        {cart.length === 0 ? (
+          <div className="empty-cart">
+            <p>Your cart is empty</p>
+            <button className="continue-shopping-btn" onClick={() => navigate('/products')}>
+              Continue Shopping
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="cart-summary">
+              <p className="total-items">Total Items: <strong>{getTotalItems()}</strong></p>
+              <p className="total-cost">Total Cost: <strong>${getTotalCost().toFixed(2)}</strong></p>
             </div>
-          ))}
-        </div>
+
+            <div className="cart-items">
+              {cart.map(item => (
+                <CartItem
+                  key={item.id}
+                  item={item}
+                  onUpdateQuantity={updateQuantity}
+                  onRemove={removeFromCart}
+                />
+              ))}
+            </div>
+
+            <div className="cart-actions">
+              <button className="continue-shopping-btn" onClick={() => navigate('/products')}>
+                Continue Shopping
+              </button>
+              <button className="checkout-btn" onClick={handleCheckout}>
+                Checkout
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
